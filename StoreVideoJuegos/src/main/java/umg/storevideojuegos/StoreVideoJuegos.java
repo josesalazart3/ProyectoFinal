@@ -1,4 +1,5 @@
 package umg.storevideojuegos;
+
 import umg.storevideojuegos.Venta;
 
 import java.sql.SQLException;
@@ -72,10 +73,9 @@ public class StoreVideoJuegos {
                             System.out.print("ID del cliente a eliminar: ");
                             int clienteAEliminarID = obtenerEnteroDesdeInput(scanner);
 
-                            // Resto del código para eliminar el cliente
                             break;
                         case "5":
-                            break; // Sal del menú de clientes
+                            break;
                         default:
                             System.out.println("Opción no válida. Inténtalo de nuevo.");
                     }
@@ -111,20 +111,19 @@ public class StoreVideoJuegos {
                             break;
 
                         case "2":
-    // Agregar videojuego al inventario
-    Videojuego nuevoVideojuego = new Videojuego();
-    System.out.print("Nombre del nuevo videojuego: ");
-    nuevoVideojuego.setNombre(scanner.nextLine());
-    System.out.print("Precio del nuevo videojuego: ");
-    nuevoVideojuego.setPrecio(obtenerDoubleDesdeInput(scanner));
-    System.out.print("Consola del nuevo videojuego: ");
-    nuevoVideojuego.setConsola(scanner.nextLine());
-    System.out.print("Cantidad disponible del nuevo videojuego: ");
-    nuevoVideojuego.setCantidadDisponible(obtenerEnteroDesdeInput(scanner));
+                            // Agregar videojuego al inventario
+                            Videojuego nuevoVideojuego = new Videojuego();
+                            System.out.print("Nombre del nuevo videojuego: ");
+                            nuevoVideojuego.setNombre(scanner.nextLine());
+                            System.out.print("Precio del nuevo videojuego: ");
+                            nuevoVideojuego.setPrecio(obtenerDoubleDesdeInput(scanner));
+                            System.out.print("Consola del nuevo videojuego: ");
+                            nuevoVideojuego.setConsola(scanner.nextLine());
+                            System.out.print("Cantidad disponible del nuevo videojuego: ");
+                            nuevoVideojuego.setCantidadDisponible(obtenerEnteroDesdeInput(scanner));
 
-    inventario.agregarVideojuego(nuevoVideojuego);
-    break;
-
+                            inventario.agregarVideojuego(nuevoVideojuego);
+                            break;
 
                         case "3":
                             // Eliminar videojuego del inventario
@@ -183,11 +182,11 @@ public class StoreVideoJuegos {
                             break;
 
                         case "3":
-                            
-                            System.out.print("Mostrar todas las ventas: ");
-                             Venta.verTodasLasVentas(configuracion.getConnection());
 
-                            // Resto del código para eliminar la venta
+                            System.out.print("Mostrar todas las ventas: ");
+                            Venta.verTodasLasVentas(configuracion.getConnection());
+
+                          
                             break;
 
                         case "4":
@@ -245,5 +244,5 @@ public class StoreVideoJuegos {
 
         return resultado;
     }
-    
+
 }

@@ -26,9 +26,11 @@ public class Inventario {
         this.consola = consola;
         this.cantidadDisponible = cantidadDisponible;
     }
-public Inventario(Connection conexion) {
+
+    public Inventario(Connection conexion) {
         this.conexion = conexion;
     }
+
     // Métodos getter y setter para los campos de la clase
     public int getId() {
         return id;
@@ -139,148 +141,152 @@ public Inventario(Connection conexion) {
     }
 
     // Método para agregar un videojuego al inventario
-public void agregarVideojuego(Videojuego videojuego) {
-    // Verificar si el videojuego ya existe en el inventario
-    boolean existeVideojuego = verificarExistenciaVideojuego(videojuego.getNombre());
+    public void agregarVideojuego(Videojuego videojuego) {
+        // Verificar si el videojuego ya existe en el inventario
+        boolean existeVideojuego = verificarExistenciaVideojuego(videojuego.getNombre());
 
-    if (existeVideojuego) {
-        // El videojuego ya existe, preguntar al usuario si desea agregar existencias y nuevo precio
-        System.out.println("El videojuego ya existe en el inventario.");
-        System.out.println("¿Desea agregar existencias y establecer un nuevo precio? (S/N)");
+        if (existeVideojuego) {
 
-        Scanner scanner = new Scanner(System.in);
-        String respuesta = scanner.nextLine();
+            System.out.println("El videojuego ya existe en el inventario.");
+            System.out.println("¿Desea agregar existencias y establecer un nuevo precio? (S/N)");
 
-        if (respuesta.equalsIgnoreCase("S")) {
-            // Pedir al usuario la nueva cantidad y precio
-            System.out.println("Ingrese la nueva cantidad disponible:");
-            int nuevaCantidad = scanner.nextInt();
-            System.out.println("Ingrese el nuevo precio:");
-            double nuevoPrecio = scanner.nextDouble();
+            Scanner scanner = new Scanner(System.in);
+            String respuesta = scanner.nextLine();
 
-            // Actualizar existencias y precio del videojuego existente
-            actualizarVideojuegoExistente(videojuego.getNombre(), nuevaCantidad, nuevoPrecio);
-            System.out.println("Existencias y precio del videojuego actualizados.");
+            if (respuesta.equalsIgnoreCase("S")) {
+                // Pedir al usuario la nueva cantidad y precio
+                System.out.println("Ingrese la nueva cantidad disponible:");
+                int nuevaCantidad = scanner.nextInt();
+                System.out.println("Ingrese el nuevo precio:");
+                double nuevoPrecio = scanner.nextDouble();
+
+                // Actualizar existencias y precio del videojuego existente
+                actualizarVideojuegoExistente(videojuego.getNombre(), nuevaCantidad, nuevoPrecio);
+                System.out.println("Existencias y precio del videojuego actualizados.");
+            } else {
+                System.out.println("No se realizaron modificaciones en el inventario.");
+            }
         } else {
-            System.out.println("No se realizaron modificaciones en el inventario.");
-        }
-    } else {
-        // El videojuego no existe, agregarlo al inventario
-        String sql = "INSERT INTO inventario (nombre, precio, consola, cantidad) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement statement = conexion.prepareStatement(sql)) {
-            statement.setString(1, videojuego.getNombre());
-            statement.setDouble(2, videojuego.getPrecio());
-            statement.setString(3, videojuego.getConsola());
-            statement.setInt(4, videojuego.getCantidadDisponible());
-            statement.executeUpdate();
-            System.out.println("Videojuego agregado al inventario.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-}
-
-// Método para verificar si un videojuego ya existe en el inventario
-private boolean verificarExistenciaVideojuego(String nombreVideojuego) {
-    String sql = "SELECT COUNT(*) AS count FROM inventario WHERE nombre = ?";
-    try (PreparedStatement statement = conexion.prepareStatement(sql)) {
-        statement.setString(1, nombreVideojuego);
-        try (ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next()) {
-                int count = resultSet.getInt("count");
-                return count > 0;
+            // El videojuego no existe, agregarlo al inventario
+            String sql = "INSERT INTO inventario (nombre, precio, consola, cantidad) VALUES (?, ?, ?, ?)";
+            try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+                statement.setString(1, videojuego.getNombre());
+                statement.setDouble(2, videojuego.getPrecio());
+                statement.setString(3, videojuego.getConsola());
+                statement.setInt(4, videojuego.getCantidadDisponible());
+                statement.executeUpdate();
+                System.out.println("Videojuego agregado al inventario.");
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-    return false;
-}
+
+// Método para verificar si un videojuego ya existe en el inventario
+    private boolean verificarExistenciaVideojuego(String nombreVideojuego) {
+        String sql = "SELECT COUNT(*) AS count FROM inventario WHERE nombre = ?";
+        try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+            statement.setString(1, nombreVideojuego);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    int count = resultSet.getInt("count");
+                    return count > 0;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
 // Método para actualizar existencias y precio de un videojuego existente
-private void actualizarVideojuegoExistente(String nombreVideojuego, int nuevaCantidad, double nuevoPrecio) {
-    String sql = "UPDATE inventario SET cantidad = ?, precio = ? WHERE nombre = ?";
-    try (PreparedStatement statement = conexion.prepareStatement(sql)) {
-        statement.setInt(1, nuevaCantidad);
-        statement.setDouble(2, nuevoPrecio);
-        statement.setString(3, nombreVideojuego);
-        statement.executeUpdate();
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-}
-
-// En la clase Inventario
-public List<Inventario> mostrarInventario() {
-    List<Inventario> inventarios = new ArrayList<>();
-    String sql = "SELECT id, nombre, precio, consola, cantidad FROM inventario";
-    
-    try (PreparedStatement statement = conexion.prepareStatement(sql)) {
-        ResultSet result = statement.executeQuery();
-        
-        while (result.next()) {
-            int id = result.getInt("id");
-            String nombre = result.getString("nombre");
-            double precio = result.getDouble("precio");
-            String consola = result.getString("consola");
-            int cantidadDisponible = result.getInt("cantidad");
-            
-            Inventario inventario = new Inventario(id, nombre, precio, consola, cantidadDisponible);
-            inventarios.add(inventario);
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    
-    return inventarios;
-}
-public static Inventario obtenerProductoPorID(int id, String url, String usuario, String contraseña) {
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-    Inventario producto = null;
-
-    try {
-        // Establecer la conexión
-        connection = DriverManager.getConnection(url, usuario, contraseña);
-
-        // Consulta SQL para obtener el producto por ID
-        String sql = "SELECT * FROM Inventario WHERE id = ?";
-        preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setInt(1, id);
-
-        // Ejecutar la consulta
-        resultSet = preparedStatement.executeQuery();
-
-        // Verificar si se encontró el producto
-        if (resultSet.next()) {
-            // Crear un objeto Inventario con los datos del resultado
-            producto = new Inventario(
-                resultSet.getInt("id"),
-                resultSet.getString("nombre"),
-                resultSet.getDouble("precio"),
-                resultSet.getString("consola"),
-                resultSet.getInt("cantidad_disponible")
-            );
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
-        // Cerrar recursos
-        try {
-            if (resultSet != null) resultSet.close();
-            if (preparedStatement != null) preparedStatement.close();
-            if (connection != null) connection.close();
+    private void actualizarVideojuegoExistente(String nombreVideojuego, int nuevaCantidad, double nuevoPrecio) {
+        String sql = "UPDATE inventario SET cantidad = ?, precio = ? WHERE nombre = ?";
+        try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+            statement.setInt(1, nuevaCantidad);
+            statement.setDouble(2, nuevoPrecio);
+            statement.setString(3, nombreVideojuego);
+            statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    return producto;
-}
+// En la clase Inventario
+    public List<Inventario> mostrarInventario() {
+        List<Inventario> inventarios = new ArrayList<>();
+        String sql = "SELECT id, nombre, precio, consola, cantidad FROM inventario";
 
+        try (PreparedStatement statement = conexion.prepareStatement(sql)) {
+            ResultSet result = statement.executeQuery();
 
+            while (result.next()) {
+                int id = result.getInt("id");
+                String nombre = result.getString("nombre");
+                double precio = result.getDouble("precio");
+                String consola = result.getString("consola");
+                int cantidadDisponible = result.getInt("cantidad");
 
+                Inventario inventario = new Inventario(id, nombre, precio, consola, cantidadDisponible);
+                inventarios.add(inventario);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return inventarios;
+    }
+
+    public static Inventario obtenerProductoPorID(int id, String url, String usuario, String contraseña) {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Inventario producto = null;
+
+        try {
+            // Establecer la conexión
+            connection = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Consulta SQL para obtener el producto por ID
+            String sql = "SELECT * FROM Inventario WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, id);
+
+            // Ejecutar la consulta
+            resultSet = preparedStatement.executeQuery();
+
+            // Verificar si se encontró el producto
+            if (resultSet.next()) {
+                // Crear un objeto Inventario con los datos del resultado
+                producto = new Inventario(
+                        resultSet.getInt("id"),
+                        resultSet.getString("nombre"),
+                        resultSet.getDouble("precio"),
+                        resultSet.getString("consola"),
+                        resultSet.getInt("cantidad_disponible")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Cerrar recursos
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return producto;
+    }
 
     // Método para cerrar la conexión a la base de datos
     public void cerrarConexion() {

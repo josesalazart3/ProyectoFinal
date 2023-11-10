@@ -71,7 +71,7 @@ public class Cliente {
             if (generatedKeys.next()) {
                 int id = generatedKeys.getInt(1);
                 System.out.println("Cliente creado exitosamente con ID: " + id);
-                // Quita la siguiente línea que intenta leer una entrada adicional
+
             } else {
                 System.out.println("Error al obtener el ID del cliente creado.");
             }
@@ -241,52 +241,49 @@ public class Cliente {
     }
 
     public Cliente obtenerClientePorID(int idCliente, String url, String usuario, String contraseña) {
-    Connection connection = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-    Cliente cliente = null;
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        Cliente cliente = null;
 
-    try {
-        // Establecer conexión
-        connection = DriverManager.getConnection(url, usuario, contraseña);
-
-        // Consulta SQL para obtener el cliente por ID
-        String sql = "SELECT * FROM clientes WHERE id = ?";
-        preparedStatement = connection.prepareStatement(sql);
-        preparedStatement.setInt(1, idCliente);
-
-        // Ejecutar la consulta
-        resultSet = preparedStatement.executeQuery();
-
-        // Verificar si se encontró el cliente
-        if (resultSet.next()) {
-            // Crear un objeto Cliente con los datos de la base de datos
-            cliente = new Cliente();
-            cliente.setId(resultSet.getInt("id"));
-            cliente.setNombre(resultSet.getString("nombre"));
-            cliente.setNit(resultSet.getString("nit"));
-            // Otros campos...
-
-            // Puedes agregar más campos según tu esquema de base de datos
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    } finally {
-        // No cierres la conexión aquí para que el objeto Cliente siga siendo utilizable
-        // La conexión se cerrará en el lugar que llama a este método
         try {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
+            // Establecer conexión
+            connection = DriverManager.getConnection(url, usuario, contraseña);
+
+            // Consulta SQL para obtener el cliente por ID
+            String sql = "SELECT * FROM clientes WHERE id = ?";
+            preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setInt(1, idCliente);
+
+            // Ejecutar la consulta
+            resultSet = preparedStatement.executeQuery();
+
+            // Verificar si se encontró el cliente
+            if (resultSet.next()) {
+                // Crear un objeto Cliente con los datos de la base de datos
+                cliente = new Cliente();
+                cliente.setId(resultSet.getInt("id"));
+                cliente.setNombre(resultSet.getString("nombre"));
+                cliente.setNit(resultSet.getString("nit"));
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
+        } finally {
 
-    return cliente;
-}
+            try {
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return cliente;
+    }
 
 }

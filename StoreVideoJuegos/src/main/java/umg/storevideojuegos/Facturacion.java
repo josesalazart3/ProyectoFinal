@@ -13,19 +13,19 @@ public class Facturacion {
 
     public static void generarFactura(Connection connection, int ventaId, String metodoPago, String direccionEnvio) {
         try {
-            // Obtener el último número de factura y actualizar la secuencia
+            
             int ultimoNumeroFactura = obtenerYActualizarSecuencia(connection);
 
-            // Incrementar el número de factura
+           
             int nuevoNumeroFactura = ultimoNumeroFactura + 1;
 
-            // Actualizar la secuencia
+            
             actualizarSecuencia(connection, nuevoNumeroFactura);
 
-            // Obtener la fecha actual
+           
             Date fechaFacturacion = new Date();
 
-            // Formatear el número de factura
+
             String numeroFactura = formatearNumeroFactura(nuevoNumeroFactura);
 
             String query = "INSERT INTO public.facturacion (venta_id, numero_factura, fecha_facturacion, metodo_pago, direccion_envio) " +
@@ -44,7 +44,7 @@ public class Facturacion {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // O manejo de la excepción según tus necesidades
+            e.printStackTrace(); 
         }
     }
 
@@ -79,7 +79,7 @@ public class Facturacion {
     }
 
     private static String formatearNumeroFactura(int numeroFactura) {
-        // Puedes ajustar el formato según tus necesidades
+        
         return String.format("%06d", numeroFactura);
     }
 }

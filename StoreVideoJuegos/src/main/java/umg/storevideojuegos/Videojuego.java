@@ -286,27 +286,27 @@ public class Videojuego {
     public static Videojuego obtenerVideojuegoPorId(Connection conexion, int idVideojuego) {
         Videojuego videojuego = null;
         String sql = "SELECT * FROM Videojuegos WHERE id = ?";
-        
+
         try (PreparedStatement statement = conexion.prepareStatement(sql)) {
             statement.setInt(1, idVideojuego);
             ResultSet result = statement.executeQuery();
-            
+
             if (result.next()) {
                 int id = result.getInt("id");
                 String nombre = result.getString("nombre");
                 double precio = result.getDouble("precio");
                 String consola = result.getString("consola");
                 int cantidadDisponible = result.getInt("cantidad_disponible");
-                
-                // Puedes ajustar los parámetros según tu esquema de base de datos
+
                 videojuego = new Videojuego(id, nombre, precio, consola, cantidadDisponible);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
-        return videojuego; // Agregamos esta línea
+
+        return videojuego;
     }
+
     public Videojuego obtenerVideojuegoPorID(int idVideojuego, String url, String usuario, String contraseña) {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
@@ -334,18 +334,22 @@ public class Videojuego {
                 videojuego.setPrecio(resultSet.getDouble("precio"));
                 videojuego.setConsola(resultSet.getString("consola"));
                 videojuego.setCantidadDisponible(resultSet.getInt("cantidad_disponible"));
-                // Otros campos...
 
-                // Puedes agregar más campos según tu esquema de base de datos
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             // Cerrar recursos
             try {
-                if (resultSet != null) resultSet.close();
-                if (preparedStatement != null) preparedStatement.close();
-                if (connection != null) connection.close();
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+                if (preparedStatement != null) {
+                    preparedStatement.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -354,5 +358,3 @@ public class Videojuego {
         return videojuego;
     }
 }
-
-

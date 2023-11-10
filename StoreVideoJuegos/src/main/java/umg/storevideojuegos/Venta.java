@@ -15,73 +15,72 @@ import static umg.storevideojuegos.Facturacion.generarFactura;
 public class Venta {
 
     public static void realizarNuevaVenta(Connection connection, Scanner scanner, ConfiguracionBaseDatos configuracion) {
-    try {
-        // Obtener datos necesarios para la venta
-        System.out.println("Ingrese el ID del cliente:");
-        int clienteId = scanner.nextInt();
-        scanner.nextLine(); // Consumir la línea después del entero
+        try {
+            // Obtener datos necesarios para la venta
+            System.out.println("Ingrese el ID del cliente:");
+            int clienteId = scanner.nextInt();
+            scanner.nextLine(); // Consumir la línea después del entero
 
-        // Obtener productos del carrito
-        List<ProductoVenta> productos = obtenerProductosCarrito(connection, scanner);
+            // Obtener productos del carrito
+            List<ProductoVenta> productos = obtenerProductosCarrito(connection, scanner);
 
-        // Mostrar listado de productos y total
-        System.out.println("Listado de productos a comprar:");
-        mostrarListadoProductos(productos);
-        BigDecimal total = calcularTotal(productos);
-        System.out.println("Total: " + total);
+            // Mostrar listado de productos y total
+            System.out.println("Listado de productos a comprar:");
+            mostrarListadoProductos(productos);
+            BigDecimal total = calcularTotal(productos);
+            System.out.println("Total: " + total);
 
-        // Confirmar la transacción
-        System.out.println("¿Desea realizar la transacción? (S/N)");
-        String confirmacion = scanner.next();
-        if (confirmacion.equalsIgnoreCase("S")) {
-            // Obtener método de pago
-            System.out.println("Seleccione el tipo de pago:");
-            System.out.println("1. Pago en efectivo");
-            System.out.println("2. Pago con tarjeta");
-            System.out.println("3. Transferencia");
-            int tipoPago = scanner.nextInt();
+            // Confirmar la transacción
+            System.out.println("¿Desea realizar la transacción? (S/N)");
+            String confirmacion = scanner.next();
+            if (confirmacion.equalsIgnoreCase("S")) {
+                // Obtener método de pago
+                System.out.println("Seleccione el tipo de pago:");
+                System.out.println("1. Pago en efectivo");
+                System.out.println("2. Pago con tarjeta");
+                System.out.println("3. Transferencia");
+                int tipoPago = scanner.nextInt();
 
-            String metodoPago = obtenerTipoPago(tipoPago);
+                String metodoPago = obtenerTipoPago(tipoPago);
 
-            // Realizar la venta y actualizar inventario
-            int ventaId = realizarVenta(connection, clienteId, productos, metodoPago);
+                // Realizar la venta y actualizar inventario
+                int ventaId = realizarVenta(connection, clienteId, productos, metodoPago);
 
-            System.out.println("Venta realizada exitosamente.");
+                System.out.println("Venta realizada exitosamente.");
 
-            // Preguntar y registrar el tipo de pago
-            System.out.println("¿Desea registrar el tipo de pago? (S/N)");
-            String registrarPago = scanner.next();
-            if (registrarPago.equalsIgnoreCase("S")) {
-                registrarTipoPago(connection, metodoPago, total, ventaId);
-                System.out.println("Tipo de pago registrado exitosamente.");
+                // Preguntar y registrar el tipo de pago
+                System.out.println("¿Desea registrar el tipo de pago? (S/N)");
+                String registrarPago = scanner.next();
+                if (registrarPago.equalsIgnoreCase("S")) {
+                    registrarTipoPago(connection, metodoPago, total, ventaId);
+                    System.out.println("Tipo de pago registrado exitosamente.");
 
-                // Preguntar si desea generar factura
-                System.out.println("¿Desea generar la factura? (S/N)");
-                String generarFactura = scanner.next();
-                if (generarFactura.equalsIgnoreCase("S")) {
-                    generarFactura(connection, ventaId, metodoPago, obtenerDireccionEnvio(scanner));
-                    System.out.println("Factura generada exitosamente.");
+                    // Preguntar si desea generar factura
+                    System.out.println("¿Desea generar la factura? (S/N)");
+                    String generarFactura = scanner.next();
+                    if (generarFactura.equalsIgnoreCase("S")) {
+                        generarFactura(connection, ventaId, metodoPago, obtenerDireccionEnvio(scanner));
+                        System.out.println("Factura generada exitosamente.");
+                    } else {
+                        System.out.println("Factura no generada.");
+                    }
                 } else {
-                    System.out.println("Factura no generada.");
+                    System.out.println("Tipo de pago no registrado.");
                 }
             } else {
-                System.out.println("Tipo de pago no registrado.");
+                System.out.println("Transacción cancelada.");
             }
-        } else {
-            System.out.println("Transacción cancelada.");
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // o manejo de la excepción según tus necesidades
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace(); // o manejo de la excepción según tus necesidades
     }
-}
 
-private static String obtenerDireccionEnvio(Scanner scanner) {
-    System.out.println("Ingrese la dirección de envío:");
-    scanner.nextLine(); // Consumir el salto de línea pendiente
-    return scanner.nextLine();
-}
-
+    private static String obtenerDireccionEnvio(Scanner scanner) {
+        System.out.println("Ingrese la dirección de envío:");
+        scanner.nextLine(); // Consumir el salto de línea pendiente
+        return scanner.nextLine();
+    }
 
     private static List<ProductoVenta> obtenerProductosCarrito(Connection connection, Scanner scanner) throws SQLException {
         List<ProductoVenta> productos = new ArrayList<>();
@@ -120,9 +119,9 @@ private static String obtenerDireccionEnvio(Scanner scanner) {
 
     private static void mostrarListadoProductos(List<ProductoVenta> productos) {
         for (ProductoVenta producto : productos) {
-            System.out.println("ID: " + producto.getId() + ", Nombre: " + producto.getNombre() +
-                    ", Cantidad: " + producto.getCantidad() + ", Precio Unitario: " + producto.getPrecio() +
-                    ", Subtotal: " + producto.getSubtotal());
+            System.out.println("ID: " + producto.getId() + ", Nombre: " + producto.getNombre()
+                    + ", Cantidad: " + producto.getCantidad() + ", Precio Unitario: " + producto.getPrecio()
+                    + ", Subtotal: " + producto.getSubtotal());
         }
     }
 
@@ -244,6 +243,7 @@ private static String obtenerDireccionEnvio(Scanner scanner) {
     }
 
     public static class ProductoVenta {
+
         private int id;
         private String nombre;
         private BigDecimal precio;
@@ -311,113 +311,113 @@ private static String obtenerDireccionEnvio(Scanner scanner) {
             }
         }
     }
-    // En la clase Venta
 
-public static void verHistorialVentasPorCliente(Connection connection, Scanner scanner) {
-    try {
-        // Obtener el ID del cliente
-        System.out.println("Ingrese el ID del cliente para ver su historial de ventas:");
-        int clienteId = scanner.nextInt();
+    public static void verHistorialVentasPorCliente(Connection connection, Scanner scanner) {
+        try {
+            // Obtener el ID del cliente
+            System.out.println("Ingrese el ID del cliente para ver su historial de ventas:");
+            int clienteId = scanner.nextInt();
 
-        // Obtener el historial de ventas del cliente
-        List<VentaInfo> historialVentas = obtenerHistorialVentasPorCliente(connection, clienteId);
+            // Obtener el historial de ventas del cliente
+            List<VentaInfo> historialVentas = obtenerHistorialVentasPorCliente(connection, clienteId);
 
-        // Mostrar el historial de ventas
-        if (!historialVentas.isEmpty()) {
-            System.out.println("Historial de ventas para el cliente con ID " + clienteId + ":");
-            for (VentaInfo venta : historialVentas) {
-                System.out.println("ID de Venta: " + venta.getIdVenta() +
-                        ", Fecha: " + venta.getFecha() +
-                        ", Total: " + venta.getTotal() +
-                        ", Estado: " + venta.getEstado());
+            // Mostrar el historial de ventas
+            if (!historialVentas.isEmpty()) {
+                System.out.println("Historial de ventas para el cliente con ID " + clienteId + ":");
+                for (VentaInfo venta : historialVentas) {
+                    System.out.println("ID de Venta: " + venta.getIdVenta()
+                            + ", Fecha: " + venta.getFecha()
+                            + ", Total: " + venta.getTotal()
+                            + ", Estado: " + venta.getEstado());
+                }
+            } else {
+                System.out.println("No hay historial de ventas para el cliente con ID " + clienteId);
             }
-        } else {
-            System.out.println("No hay historial de ventas para el cliente con ID " + clienteId);
-        }
 
-    } catch (SQLException e) {
-        e.printStackTrace(); // O manejo de la excepción según tus necesidades
-    }
-}
-
-private static List<VentaInfo> obtenerHistorialVentasPorCliente(Connection connection, int clienteId) throws SQLException {
-    List<VentaInfo> historialVentas = new ArrayList<>();
-
-    String query = "SELECT v.id, v.fecha, v.total, v.estado " +
-            "FROM public.ventas v " +
-            "WHERE v.cliente_id = ? " +
-            "ORDER BY v.fecha DESC";
-
-    try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-        preparedStatement.setInt(1, clienteId);
-
-        try (ResultSet resultSet = preparedStatement.executeQuery()) {
-            while (resultSet.next()) {
-                int idVenta = resultSet.getInt("id");
-                String fecha = resultSet.getString("fecha");
-                BigDecimal total = resultSet.getBigDecimal("total");
-                String estado = resultSet.getString("estado");
-
-                historialVentas.add(new VentaInfo(idVenta, fecha, total, estado));
-            }
+        } catch (SQLException e) {
+            e.printStackTrace(); 
         }
     }
 
-    return historialVentas;
-}
-public static void verTodasLasVentas(Connection connection) {
-    try {
-        String query = "SELECT id, cliente_id, fecha, total, metodo_pago, estado FROM public.ventas";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
+    private static List<VentaInfo> obtenerHistorialVentasPorCliente(Connection connection, int clienteId) throws SQLException {
+        List<VentaInfo> historialVentas = new ArrayList<>();
 
-            System.out.println("ID\tCliente ID\tFecha\t\t\tTotal\t\tMétodo de Pago\t\tEstado");
-            System.out.println("-------------------------------------------------------------------------");
+        String query = "SELECT v.id, v.fecha, v.total, v.estado "
+                + "FROM public.ventas v "
+                + "WHERE v.cliente_id = ? "
+                + "ORDER BY v.fecha DESC";
 
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                int clienteId = resultSet.getInt("cliente_id");
-                Timestamp fecha = resultSet.getTimestamp("fecha");
-                BigDecimal total = resultSet.getBigDecimal("total");
-                String metodoPago = resultSet.getString("metodo_pago");
-                String estado = resultSet.getString("estado");
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, clienteId);
 
-                System.out.println(id + "\t" + clienteId + "\t\t" + fecha + "\t" + total + "\t" + metodoPago + "\t\t" + estado);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    int idVenta = resultSet.getInt("id");
+                    String fecha = resultSet.getString("fecha");
+                    BigDecimal total = resultSet.getBigDecimal("total");
+                    String estado = resultSet.getString("estado");
+
+                    historialVentas.add(new VentaInfo(idVenta, fecha, total, estado));
+                }
             }
         }
-    } catch (SQLException e) {
-        e.printStackTrace(); // O manejo de la excepción según tus necesidades
-    }
-}
 
-public static class VentaInfo {
-    private final int idVenta;
-    private final String fecha;
-    private final BigDecimal total;
-    private final String estado;
-
-    public VentaInfo(int idVenta, String fecha, BigDecimal total, String estado) {
-        this.idVenta = idVenta;
-        this.fecha = fecha;
-        this.total = total;
-        this.estado = estado;
+        return historialVentas;
     }
 
-    public int getIdVenta() {
-        return idVenta;
+    public static void verTodasLasVentas(Connection connection) {
+        try {
+            String query = "SELECT id, cliente_id, fecha, total, metodo_pago, estado FROM public.ventas";
+            try (PreparedStatement preparedStatement = connection.prepareStatement(query); ResultSet resultSet = preparedStatement.executeQuery()) {
+
+                System.out.println("ID\tCliente ID\tFecha\t\t\tTotal\t\tMétodo de Pago\t\tEstado");
+                System.out.println("-------------------------------------------------------------------------");
+
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    int clienteId = resultSet.getInt("cliente_id");
+                    Timestamp fecha = resultSet.getTimestamp("fecha");
+                    BigDecimal total = resultSet.getBigDecimal("total");
+                    String metodoPago = resultSet.getString("metodo_pago");
+                    String estado = resultSet.getString("estado");
+
+                    System.out.println(id + "\t" + clienteId + "\t\t" + fecha + "\t" + total + "\t" + metodoPago + "\t\t" + estado);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // 
+        }
     }
 
-    public String getFecha() {
-        return fecha;
-    }
+    public static class VentaInfo {
 
-    public BigDecimal getTotal() {
-        return total;
-    }
+        private final int idVenta;
+        private final String fecha;
+        private final BigDecimal total;
+        private final String estado;
 
-    public String getEstado() {
-        return estado;
+        public VentaInfo(int idVenta, String fecha, BigDecimal total, String estado) {
+            this.idVenta = idVenta;
+            this.fecha = fecha;
+            this.total = total;
+            this.estado = estado;
+        }
+
+        public int getIdVenta() {
+            return idVenta;
+        }
+
+        public String getFecha() {
+            return fecha;
+        }
+
+        public BigDecimal getTotal() {
+            return total;
+        }
+
+        public String getEstado() {
+            return estado;
+        }
     }
-}
 
 }
